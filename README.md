@@ -133,6 +133,21 @@ print("- wallet_scores.csv (wallet → credit score)")
 print("- shap_summary.png (SHAP value summary of feature importance)")
 print("- score_distribution.png (Histogram of generated credit scores)")
 
-# Display top 10 scores
-print("\n Top 10 Wallet Credit Scores:")
-print(df[["wallet", "credit_score"]].sort_values(by="credit_score", ascending=False).head(10))
+# Display credit scores
+print("\n Wallet Credit Scores:")
+print(df[["wallet", "credit_score"]].sort_values(by="credit_score", ascending=False))
+
+shap.initjs()
+import shap
+shap.initjs()  # This line enables SHAP plots to show interactively in Jupyter
+
+explainer = shap.TreeExplainer(model)
+shap_vals = explainer.shap_values(df[features])
+
+# SHAP summary plot (interactive in notebook)
+shap.summary_plot(shap_vals, df[features])
+
+shap.summary_plot(shap_vals, df[features], show=False)
+plt.savefig("shap_summary.png", bbox_inches="tight")
+plt.show()
+
