@@ -136,5 +136,3 @@ print("- score_distribution.png (Histogram of generated credit scores)")
 # Display top 10 scores
 print("\n Top 10 Wallet Credit Scores:")
 print(df[["wallet", "credit_score"]].sort_values(by="credit_score", ascending=False).head(10))
-# zeru-s-problem-statements-1
-to develop a robust machine learning model that assigns a **credit score between 0 and 1000** to each wallet, based solely on historical transaction behaviors. 
