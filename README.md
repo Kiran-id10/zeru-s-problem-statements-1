@@ -151,3 +151,21 @@ shap.summary_plot(shap_vals, df[features], show=False)
 plt.savefig("shap_summary.png", bbox_inches="tight")
 plt.show()
 
+# Scale anomaly scores to 300–850 range
+scaler = MinMaxScaler(feature_range=(300, 850))
+df["credit_score"] = scaler.fit_transform(df[["anomaly_score"]])
+
+import matplotlib.pyplot as plt
+
+# Histogram of credit scores range between 
+plt.figure(figsize=(10, 6))
+plt.hist(df["credit_score"], bins=20, color="skyblue", edgecolor="black")
+plt.title("Credit Score Distribution (300–850)")
+plt.xlabel("Credit Score")
+plt.ylabel("Number of Wallets")
+plt.grid(True)
+plt.savefig("score_distribution.png", bbox_inches="tight")
+plt.show()
+
+
+
