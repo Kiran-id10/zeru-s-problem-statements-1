@@ -1,171 +1,126 @@
-import json, gzip, os
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.ensemble import IsolationForest
-from sklearn.model_selection import train_test_split
-import lightgbm as lgb
-import shap
-import gdown
+# Wallet Credit Scoring System 
+This project implements a credit scoring system for DeFi wallets using transactional behavior from the AAVE protocol. The goal is to analyze on-chain behavior and predict wallet reliability using machine learning models and explainability techniques like SHAP.
 
-gdrive_url = "https://drive.google.com/uc?id=1ISFbAXxadMrt7Zl96rmzzZmEKZnyW7FS"
-data_path = "aave_data.json"
+# Problem Statement
+In traditional finance, credit scores are widely used to assess the risk of lending to a borrower. In DeFi, such mechanisms are rare or non-existent. This project proposes a method to bridge that gap using machine learning to evaluate risk from blockchain-based transaction data.
 
-if not os.path.exists(data_path):
-    gdown.download(gdrive_url, data_path, quiet=False)
+# Method Chosen
+Isolation Forest is used for detecting anomalies in wallet behavior based on aggregated features.
 
+LightGBM is employed as the main classifier to predict liquidation events, which are used as proxy labels for risk scoring.
 
-import gzip
-import json
+The anomaly score is scaled to derive a credit score between 300 and 850.
 
-def load_wallet_data(path):
-    if path.endswith(".gz"):
-        with gzip.open(path, "rt") as f:
-            for line in f:
-                yield json.loads(line)
-    else:
-        with open(path, "r") as f:
-            data = json.load(f)  # For plain .json file
-            for item in data:
-                yield item
+SHAP (SHapley Additive exPlanations) is used to interpret feature importance and model behavior.
 
+Wallets are analyzed across score ranges to observe behavioral patterns.
 
-def aggregate_features(txns):
-    df = pd.DataFrame(txns).sort_values("timestamp")
+# Architecture Overview
+                 ┌────────────────────┐
+                 │  AAVE Wallet Data  │
+                 └────────┬───────────┘
+                          │
+                 ┌────────▼───────────┐
+                 │  Feature Aggregator│
+                 │ (txns per day, HF) │
+                 └────────┬───────────┘
+                          │
+        ┌─────────────────▼──────────────────┐
+        │ Isolation Forest (Anomaly Scoring) │
+        └─────────────────┬──────────────────┘
+                          │
+        ┌─────────────────▼──────────────────┐
+        │ LightGBM Classifier (Liquidation)  │
+        └─────────────────┬──────────────────┘
+                          │
+        ┌─────────────────▼──────────────────┐
+        │ Credit Score Scaler (300–850)      │
+        └─────────────────┬──────────────────┘
+                          │
+        ┌─────────────────▼──────────────────┐
+        │ SHAP for Feature Explanation       │
+        └────────────────────────────────────┘
+# Processing Flow
+1 Data Loading
+Load transaction-level data for each wallet using load_wallet_data().
 
-    res = {
-        "tx_per_day": len(df) / (((df["timestamp"].max() - df["timestamp"].min()) / 86400) + 1)
-    }
+2 Feature Engineering
+Aggregate wallet-level features like:
 
-    if "health_factor" in df.columns:
-        res.update({
-            "hf_mean": df["health_factor"].mean(),
-            "hf_min": df["health_factor"].min(),
-            "hf_std": df["health_factor"].std(),
-        })
-    else:
-        res.update({
-            "hf_mean": 0,
-            "hf_min": 0,
-            "hf_std": 0,
-        })
+tx_per_day
 
+health_factor stats (mean, min, std)
 
-for i, rec in enumerate(load_wallet_data(data_path)):
-    print(f"Record {i+1}: {rec}")
-    break
+3 Anomaly Detection
+Use IsolationForest to score the wallets based on outlier behavior.
 
-    return res
+4 Model Training
+Train a LightGBM model using the aggregated features and anomaly labels.
 
+5 Credit Score Calculation
+Convert anomaly scores into a 300–850 credit score scale using MinMaxScaler.
 
-wallets = {}
-for rec in load_wallet_data(data_path):
-    wallets.setdefault(rec["userWallet"], []).append(rec)
+6 Explainability (SHAP)
+Generate SHAP value plots to interpret the importance of features.
 
-rows = []
-for wallet, txns in wallets.items():
-    feats = aggregate_features(txns)
-    feats["wallet"] = wallet
-    rows.append(feats)
+7 Behavioral Analysis
+Analyze wallet behaviors across score ranges (e.g., 300–400, 400–500) to understand risk trends.
 
-df = pd.DataFrame(rows).fillna(0)
-features = [c for c in df.columns if c not in ["wallet", "had_liquidation"]]
+# Methodology
+1 Data Collection
+JSON-formatted AAVE protocol wallet data was downloaded using a Google Drive link.
+Each entry includes wallet address, timestamp, transaction details, and optional health factors.
 
+2 Feature Engineering
+Computed features per wallet:
+Transaction frequency (tx_per_day)
+health_factor metrics: mean, min, std
+Aggregated features to create a wallet-level dataset.
 
-iso = IsolationForest(contamination=0.01, random_state=42)
-df["anomaly_score"] = -iso.fit_predict(df[features])
-features.append("anomaly_score")
+3 Anomaly Detection
+Used Isolation Forest to identify wallets with unusual patterns (e.g., extremely high or low health factors).
+Anomaly score added as a risk indicator.
 
+4 Supervised Modeling
+Trained a LightGBM classifier on the feature set to predict liquidation risk.
+Used SHAP values to explain feature contributions.
 
-X_train, X_val, y_train, y_val = train_test_split(
-    df[features], df.had_liquidation, test_size=0.2, stratify=df.had_liquidation, random_state=42
-)
+5 Credit Scoring
+Transformed anomaly scores to a credit score range (300–850) using MinMaxScaler.
+Higher scores → safer wallets; lower scores → risky wallets.
 
-model = lgb.LGBMClassifier(n_estimators=200, random_state=42)
-model.fit(X_train, y_train, eval_set=[(X_val, y_val)], early_stopping_rounds=20, verbose=False)
+# Score Distribution
+Wallets are scored and grouped as follows:
 
-from sklearn.preprocessing import MinMaxScaler
+300–500: High-risk wallets — low transaction activity, poor health factor, likely to be liquidated.
 
-scaler = MinMaxScaler(feature_range=(300, 850))  # Credit score range
-df["credit_score"] = scaler.fit_transform(df[["anomaly_score"]])
+500–700: Moderate-risk wallets — consistent behavior with occasional risk.
 
+700–850: Low-risk wallets — stable, frequent transactions and high health factor.
 
+# Use Cases
+Risk assessment for decentralized lending platforms.
 
-print(df.columns)
+Behavioral segmentation of wallet users.
 
+Fraud/anomaly detection in blockchain finance.
 
-df["credit_score"] = (1 - df["anomaly_score"]) * 100
+Creditworthiness assessment in on-chain loan issuance.
 
+# Future Work
+Integrate with real-time on-chain APIs.
 
+Expand features with liquidity, collateral types, and token behavior.
 
-df[["wallet", "credit_score"]].to_csv("wallet_scores.csv", index=False)
+Introduce dynamic time-series modeling for prediction.
 
-from sklearn.ensemble import RandomForestClassifier
-import shap
-import matplotlib.pyplot as plt
-
-# Assuming your target is binary or categorical
-df["target"] = df["anomaly_score"].apply(lambda x: 1 if x > 0 else 0)
-
-# Train a model (e.g., Random Forest)
-model = RandomForestClassifier(n_estimators=100, random_state=42)
-model.fit(df[features], df["target"])
-
-
-explainer = shap.TreeExplainer(model)
-shap_vals = explainer.shap_values(df[features])
-
-# SHAP summary plot
-shap.summary_plot(shap_vals, df[features], show=False)
-plt.savefig("shap_summary.png", bbox_inches="tight")
-plt.clf()
-
-plt.hist(df.credit_score, bins=20, color="skyblue", edgecolor="black")
-plt.title("Credit Score Distribution (0–1000)")
-plt.xlabel("Score")
-plt.ylabel("Wallet Count")
-plt.savefig("score_distribution.png", bbox_inches="tight")
-plt.show()
+Use ensemble models for better accuracy.
 
 
-print(" All steps complete. Outputs generated:\n")
-print("- wallet_scores.csv (wallet → credit score)")
-print("- shap_summary.png (SHAP value summary of feature importance)")
-print("- score_distribution.png (Histogram of generated credit scores)")
 
-# Display credit scores
-print("\n Wallet Credit Scores:")
-print(df[["wallet", "credit_score"]].sort_values(by="credit_score", ascending=False))
 
-shap.initjs()
-import shap
-shap.initjs()  # This line enables SHAP plots to show interactively in Jupyter
 
-explainer = shap.TreeExplainer(model)
-shap_vals = explainer.shap_values(df[features])
 
-# SHAP summary plot (interactive in notebook)
-shap.summary_plot(shap_vals, df[features])
-
-shap.summary_plot(shap_vals, df[features], show=False)
-plt.savefig("shap_summary.png", bbox_inches="tight")
-plt.show()
-
-# Scale anomaly scores to 300–850 range
-scaler = MinMaxScaler(feature_range=(300, 850))
-df["credit_score"] = scaler.fit_transform(df[["anomaly_score"]])
-
-import matplotlib.pyplot as plt
-
-# Histogram of credit scores range between 300 and 850
-plt.figure(figsize=(10, 6))
-plt.hist(df["credit_score"], bins=20, color="skyblue", edgecolor="black")
-plt.title("Credit Score Distribution (300–850)")
-plt.xlabel("Credit Score")
-plt.ylabel("Number of Wallets")
-plt.grid(True)
-plt.savefig("score_distribution.png", bbox_inches="tight")
-plt.show()
 
 
 
