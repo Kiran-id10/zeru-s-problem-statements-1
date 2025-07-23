@@ -157,7 +157,7 @@ df["credit_score"] = scaler.fit_transform(df[["anomaly_score"]])
 
 import matplotlib.pyplot as plt
 
-# Histogram of credit scores range between 
+# Histogram of credit scores range between 300 and 850
 plt.figure(figsize=(10, 6))
 plt.hist(df["credit_score"], bins=20, color="skyblue", edgecolor="black")
 plt.title("Credit Score Distribution (300–850)")
