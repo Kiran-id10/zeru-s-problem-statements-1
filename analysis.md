@@ -105,4 +105,86 @@ These wallets are likely long-term DeFi users, traders, or institutions.
 
 Safe to engage in high-trust environments such as lending or DAOs.
 
+# Behavior of Wallets in Lower Credit Score Ranges (0–200)
+Wallets falling into the 0–200 credit score range are considered extremely risky. These wallets demonstrate behavior patterns and financial activity that raise red flags in a decentralized finance (DeFi) ecosystem.
+
+ # Key Characteristics:
+Low Transaction Activity: These wallets typically have very few transactions or exhibit long periods of inactivity. This could indicate dormant wallets or abandoned accounts.
+
+Irregular Patterns: When activity is present, it often appears in irregular spikes, suggesting unpredictable or speculative usage.
+
+Poor Health Factor Metrics: Many of these wallets show low health factors (e.g., borrowing too close to the liquidation threshold), implying high risk in DeFi lending platforms.
+
+Frequent Liquidations: A common trait is a history of liquidation events or usage of volatile assets as collateral without adequate backing.
+
+High Anomaly Scores: These wallets often trigger anomaly detection models due to sudden shifts in behavior, balance, or borrowing.
+
+Minimal On-Chain Reputation: They may be new to the ecosystem or lack diverse interactions with DeFi protocols, reducing their trustworthiness.
+
+ # Potential Behavior Patterns:
+# Behavior Type	Description
+Speculative Trading	Sudden, short-term interactions with risky protocols or assets.
+Abandoned Wallets	Wallets with no activity for long periods.
+Flash Loan Exploits	Attempted usage of flash loans without proper collateral.
+Bot Activity	Irregular, automated behavior suggesting the wallet is controlled by scripts or bots.
+Low Collateral Ratios	Consistently borrowing against collateral just above liquidation thresholds.
+
+#  Interpretation & Use-Cases:
+Risk Mitigation: These wallets should be flagged for high risk in lending and borrowing scenarios.
+
+Exclusion from Incentives: Platforms can avoid rewarding wallets in this range with staking rewards, airdrops, or governance rights.
+
+Further Monitoring: May require real-time monitoring or behavior verification before trust-based interactions.
+
+ # Example Impact:
+If used in a DeFi lending protocol, wallets in this range could:
+
+Be more likely to default on loans.
+
+Trigger liquidation cascades in unstable markets.
+
+Damage trust in undercollateralized systems.
+
+
+<img width="1380" height="678" alt="image" src="https://github.com/user-attachments/assets/983cbb3a-f757-4d44-9bcd-4c6422dee888" />
+
+# Behavior of Wallets in Higher Credit Score Ranges (700–850)
+Wallets that fall within the 700–850 credit score range are considered highly reliable and financially healthy. These wallets demonstrate strong engagement with decentralized finance (DeFi) platforms while maintaining a cautious and sustainable financial strategy.
+
+# Key Behavioral Traits:
+Consistent and Stable Activity
+These wallets show regular interaction with the blockchain—frequent, steady transaction patterns with lending, borrowing, and repaying. Activity is distributed over time and avoids sudden spikes or inactivity.
+
+High Health Factor Maintenance
+Wallets maintain high average and minimum health factors, ensuring they are well-collateralized and unlikely to be liquidated. This reflects conservative borrowing behavior.
+
+Low or Zero Liquidation Events
+High-score wallets have little to no liquidation history, indicating the user proactively manages collateral ratios and avoids risky market timing.
+
+Engagement with Reputable Protocols
+Wallets often interact with established protocols such as Aave, Compound, or Curve, preferring safety and long-term gains over speculative yields.
+
+Low Anomaly Scores
+Using unsupervised anomaly detection (e.g., Isolation Forest), these wallets are flagged as normal or low-risk based on their feature patterns.
+
+Moderate Borrowing and Responsible Repayment
+When borrowing occurs, it's usually within safe limits. Repayments are timely, and utilization ratios are moderate, reducing systemic risk.
+
+High Creditworthiness
+Their behavioral history suggests they could be candidates for future undercollateralized lending models due to their trust profile.
+
+#  Implication of High Scores
+These wallets represent ideal borrowers in a credit-based DeFi system.
+
+Lenders or protocols could assign lower interest rates to such wallets, improving capital efficiency.
+
+Wallets in this tier could be early adopters of DeFi credit scoring systems and may benefit from improved financial access.
+
+
+<img width="1373" height="672" alt="image" src="https://github.com/user-attachments/assets/05150096-a990-4688-bff1-a9a712e6e8bf" />
+
+
+
+
+
 
