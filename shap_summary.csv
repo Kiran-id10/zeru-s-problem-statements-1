@@ -1,0 +1,67 @@
+ # SHAP SHapley Additive exPlanations summary plots.
+   
+  The shap_summary.png is a SHAP (SHapley Additive exPlanations) summary plot. It visually explains which features most influence the model’s predictions (in your case, the prediction of whether a wallet is risky or not).
+
+This is particularly useful to interpret the trained RandomForest model that uses wallet transaction behavior to estimate creditworthiness.
+
+#  How to Read the SHAP Summary Plot:
+1. Y-axis: Features
+These are the features used for modeling, from your aggregate_features() function. For example:
+
+tx_per_day — Number of transactions per day
+
+hf_mean, hf_min, hf_std — Health factor statistics
+
+anomaly_score — Score derived from Isolation Forest (outlier detection)
+
+They appear in order of importance, top to bottom (top = most important for model decisions).
+
+2. X-axis: SHAP Value
+Represents the impact each feature has on the model’s output.
+
+Positive SHAP value → pushes prediction towards risky (target = 1)
+
+Negative SHAP value → pushes prediction towards safe (target = 0)
+
+So, longer bars mean more influence on wallet classification.
+
+3. Color Gradient: Feature Value
+Red dots → High feature values
+
+Blue dots → Low feature values
+This tells you how feature values affect the prediction.
+
+# Example Interpretation
+Let’s say this appears in your SHAP summary:
+
+Feature: hf_min (minimum health factor)
+  - Red points (high values) have negative SHAP values ⇒ model predicts safe
+  - Blue points (low values) have positive SHAP values ⇒ model predicts risky
+ Insight: A low minimum health factor is associated with higher credit risk, which makes intuitive sense — lower health factor means the wallet is closer to liquidation.
+
+# Why This Is Useful
+This helps answer:
+
+“Which features drive low/high credit scores?”
+
+“What behavior makes a wallet seem safe or risky?”
+
+“Can I trust the model's decisions?”
+
+This is crucial in DeFi, where transparency and model explainability are essential.
+
+# Image Example (Structure of the Plot)
+java
+Copy
+Edit
+← More Safe                      More Risky →
+SHAP Value (impact on model output)
+│
+│
+│  ■■■■■■ tx_per_day  (Red dots = more txns → safe)
+│  ■■■■■■ hf_min       (Blue dots = low hf → risky)
+│  ■■■■■■ hf_std
+│  ■■■■■■ anomaly_score
+│
+└ 
+
