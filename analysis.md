@@ -1,4 +1,4 @@
-# Wallet Credit Score Analysis Report
+<img width="1352" height="652" alt="image" src="https://github.com/user-attachments/assets/21a59462-ef1b-4a8c-8ea6-9f94ad4630cc" /><img width="1352" height="652" alt="image" src="https://github.com/user-attachments/assets/922d3a8c-0342-44c0-84f2-7630e7615c4f" /># Wallet Credit Score Analysis Report
 
 # Introduction
 This report presents a comprehensive analysis of credit scores computed for individual blockchain wallets. The scoring mechanism is based on user behavior patterns derived from transactional data, health factor trends, and anomaly detection models. The intent is to develop a data-driven approach to identify trustworthy wallets, mitigate financial risk in DeFi ecosystems, and facilitate more informed decision-making in decentralized finance platforms.
@@ -182,6 +182,10 @@ Wallets in this tier could be early adopters of DeFi credit scoring systems and 
 
 
 <img width="1373" height="672" alt="image" src="https://github.com/user-attachments/assets/05150096-a990-4688-bff1-a9a712e6e8bf" />
+
+
+<img width="1352" height="652" alt="image" src="https://github.com/user-attachments/assets/bab1f47f-7cfd-42a8-ba1b-f8770c121f8b" />
+
 
 
 
